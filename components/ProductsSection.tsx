@@ -20,7 +20,11 @@ export default function ProductsSection() {
         const response = await fetch('/api/products')
         const data = await response.json()
         if (data.success && Array.isArray(data.data)) {
-          setProducts(data.data)
+          const normalized = data.data.map((product: any) => ({
+            ...product,
+            variants: product.variants ?? product.product_variants ?? [],
+          }))
+          setProducts(normalized)
         }
       } catch (error) {
         console.error('[ProductsSection] Error fetching products:', error)

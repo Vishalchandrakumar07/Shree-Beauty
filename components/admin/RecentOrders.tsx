@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { formatDate } from '@/lib/utils/validation'
-import type { Order } from '@/lib/types'
+import type { Order } from '@/lib/supabase'
 
 interface RecentOrdersProps {
   orders: Order[]
@@ -61,7 +61,7 @@ export default function RecentOrders({ orders }: RecentOrdersProps) {
                   </td>
                   <td className="py-4 px-4 text-sm text-foreground">{order.customer_name}</td>
                   <td className="py-4 px-4 text-sm font-semibold text-primary">
-                    ₹{order.total_price.toLocaleString('en-IN')}
+                    ₹{order.total_amount.toLocaleString('en-IN')}
                   </td>
                   <td className="py-4 px-4 text-sm">
                     <span

@@ -12,7 +12,7 @@ const CATEGORIES = ['Soaps', 'Shampoos', 'Hair Oils', 'Face Washes']
 
 export default function NewProductPage() {
   const router = useRouter()
-  const { isLoggedIn } = useAdmin()
+  const { isLoggedIn, logout } = useAdmin()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -25,11 +25,43 @@ export default function NewProductPage() {
     benefits: '',
     usage_instructions: '',
     image_url: '',
+    variants: [] as Array<{ id: string; size_label: string; price: string; image_url: string }>,
   })
+
+  const createVariant = () => ({
+    id: `${Date.now()}-${Math.random()}`,
+    size_label: '',
+    price: '',
+    image_url: '',
+  })
+
+  const handleVariantChange = (index: number, field: 'size_label' | 'price' | 'image_url', value: string) => {
+    setFormData((prev) => {
+      const variants = [...prev.variants]
+      variants[index] = { ...variants[index], [field]: value }
+      return { ...prev, variants }
+    })
+  }
+
+  const addVariant = () => {
+    setFormData((prev) => ({ ...prev, variants: [...prev.variants, createVariant()] }))
+  }
+
+  const removeVariant = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      variants: prev.variants.filter((_, idx) => idx !== index),
+    }))
+  }
 
   if (!isLoggedIn) {
     router.push('/admin/login')
     return null
+  }
+
+  const handleLogout = () => {
+    logout()
+    router.push('/admin/login')
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -63,6 +95,14 @@ export default function NewProductPage() {
       return
     }
 
+    const validVariants = formData.variants
+      .filter((variant) => variant.size_label.trim() && variant.price.trim())
+      .map((variant) => ({
+        size_label: variant.size_label,
+        price: parseFloat(variant.price),
+        image_url: variant.image_url,
+      }))
+
     try {
       const response = await fetch('/api/products', {
         method: 'POST',
@@ -70,6 +110,7 @@ export default function NewProductPage() {
         body: JSON.stringify({
           ...formData,
           price: parseFloat(formData.price),
+          variants: validVariants,
         }),
       })
 
@@ -93,7 +134,7 @@ export default function NewProductPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AdminHeader />
+      <AdminHeader onLogout={handleLogout} />
 
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-8">
@@ -174,6 +215,63 @@ export default function NewProductPage() {
                   currentImage={formData.image_url}
                 />
               </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <label className="block text-sm font-medium text-foreground">
+                  Flavours / Variants
+                </label>
+                <button
+                  type="button"
+                  onClick={addVariant}
+                  className="inline-flex items-center justify-center rounded-lg border border-primary px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/10"
+                >
+                  + Add Flavour
+                </button>
+              </div>
+
+              {formData.variants.map((variant, index) => (
+                <div key={variant.id} className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 border border-border rounded-lg bg-background">
+                  <div className="lg:col-span-1 space-y-3">
+                    <label className="block text-sm font-medium text-foreground">Flavour Name</label>
+                    <input
+                      type="text"
+                      value={variant.size_label}
+                      onChange={(e) => handleVariantChange(index, 'size_label', e.target.value)}
+                      className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-primary"
+                      placeholder="e.g., Rose, Lavender"
+                    />
+                  </div>
+
+                  <div className="lg:col-span-1 space-y-3">
+                    <label className="block text-sm font-medium text-foreground">Price (₹)</label>
+                    <input
+                      type="number"
+                      value={variant.price}
+                      onChange={(e) => handleVariantChange(index, 'price', e.target.value)}
+                      className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-primary"
+                      placeholder="e.g., 199"
+                      step="0.01"
+                    />
+                  </div>
+
+                  <div className="lg:col-span-1 space-y-3">
+                    <ImageUpload
+                      label="Flavour Image"
+                      currentImage={variant.image_url}
+                      onImageUpload={(url) => handleVariantChange(index, 'image_url', url)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeVariant(index)}
+                      className="inline-flex items-center justify-center rounded-lg border border-red-300 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div>

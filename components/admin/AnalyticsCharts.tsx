@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import type { Order } from '@/lib/supabase'
 import {
   LineChart,
   Line,
@@ -16,7 +17,6 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
-import type { Order } from '@/lib/types'
 
 interface AnalyticsChartsProps {
   orders: Order[]
@@ -35,7 +35,7 @@ export default function AnalyticsCharts({ orders }: AnalyticsChartsProps) {
           orderDate.toDateString() === date.toDateString() && order.status === 'delivered'
         )
       })
-      .reduce((sum, order) => sum + order.total_price, 0)
+      .reduce((sum, order) => sum + order.total_amount, 0)
     return { date: dateStr, revenue }
   })
 

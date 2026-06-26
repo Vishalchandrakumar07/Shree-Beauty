@@ -1,19 +1,24 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Upload, X } from 'lucide-react'
 import { uploadProductImage } from '@/lib/utils/storage'
 
 interface ImageUploadProps {
   onImageUpload: (imageUrl: string) => void
   currentImage?: string
+  label?: string
 }
 
-export default function ImageUpload({ onImageUpload, currentImage }: ImageUploadProps) {
+export default function ImageUpload({ onImageUpload, currentImage, label = 'Product Image' }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<string | null>(currentImage || null)
   const [error, setError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    setPreview(currentImage || null)
+  }, [currentImage])
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -64,7 +69,7 @@ export default function ImageUpload({ onImageUpload, currentImage }: ImageUpload
 
   return (
     <div className="space-y-4">
-      <label className="block text-sm font-medium text-foreground">Product Image</label>
+      <label className="block text-sm font-medium text-foreground">{label}</label>
 
       {preview ? (
         <div className="relative w-full h-48 border-2 border-border rounded-lg overflow-hidden bg-muted/30">

@@ -46,6 +46,7 @@ export async function POST() {
           product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
           size_label VARCHAR(100) NOT NULL,
           price DECIMAL(10, 2) NOT NULL,
+          image_url VARCHAR(500),
           created_at TIMESTAMP DEFAULT NOW()
         );
       `,
@@ -54,6 +55,11 @@ export async function POST() {
     if (variantsError) {
       console.error('Variants table error:', variantsError)
     }
+
+    // Ensure image_url column exists for flavour variants
+    await supabase.rpc('exec_sql', {
+      sql: `ALTER TABLE product_variants ADD COLUMN IF NOT EXISTS image_url VARCHAR(500);`,
+    })
 
     // Create orders table
     const { error: ordersError } = await supabase.rpc('exec_sql', {

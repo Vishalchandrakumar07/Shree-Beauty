@@ -2,13 +2,21 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { products as defaultProducts } from '@/data/products'
 
+const ensureSupabaseAdmin = () => {
+  if (!supabaseAdmin) {
+    throw new Error('Supabase admin client is not configured')
+  }
+  return supabaseAdmin
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const category = searchParams.get('category')
 
     // Try to fetch from Supabase first
-    let query = supabaseAdmin.from('products').select('*')
+    const admin = ensureSupabaseAdmin()
+    let query = admin.from('products').select('*, product_variants(*)')
 
     if (category) {
       query = query.eq('category', category)
@@ -30,10 +38,15 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    const products = (data || []).map((product: any) => ({
+      ...product,
+      variants: product.product_variants || [],
+    }))
+
     return NextResponse.json({
       success: true,
-      data: data || [],
-      count: data?.length || 0,
+      data: products,
+      count: products.length,
     })
   } catch (error) {
     console.error('[API] Error fetching products:', error)
@@ -44,7 +57,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name, category, price, description, ingredients, benefits, usage_instructions, image_url } = body
+    const { name, category, price, description, ingredients, benefits, usage_instructions, image_url, variants } = body
 
     if (!name || !category || !price) {
       return NextResponse.json(
@@ -53,7 +66,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { data, error } = await supabaseAdmin
+    const { data: insertedProducts, error: productError } = await supabaseAdmin
       .from('products')
       .insert([
         {
@@ -69,17 +82,54 @@ export async function POST(request: NextRequest) {
       ])
       .select()
 
-    if (error) {
-      console.error('[API] Supabase error:', error)
+    if (productError) {
+      console.error('[API] Supabase error:', productError)
       return NextResponse.json(
-        { error: error.message },
+        { error: productError.message },
         { status: 500 }
       )
     }
 
+    const createdProduct = insertedProducts?.[0]
+
+    let insertedVariants = []
+    if (Array.isArray(variants) && variants.length > 0) {
+      const variantsToInsert = variants.map((variant: any) => {
+        const row: any = {
+          product_id: createdProduct.id,
+          size_label: variant.size_label,
+          price: variant.price,
+        }
+
+        if (variant.image_url) {
+          row.image_url = variant.image_url
+        }
+
+        return row
+      })
+
+      const { data: variantData, error: variantError } = await supabaseAdmin
+        .from('product_variants')
+        .insert(variantsToInsert)
+        .select()
+
+      if (variantError) {
+        console.error('[API] Supabase variants error:', variantError)
+        return NextResponse.json(
+          { error: variantError.message },
+          { status: 500 }
+        )
+      }
+
+      insertedVariants = variantData || []
+    }
+
     return NextResponse.json({
       success: true,
-      data: data[0],
+      data: {
+        ...createdProduct,
+        variants: insertedVariants,
+      },
     })
   } catch (error: any) {
     console.error('[API] Error creating product:', error)

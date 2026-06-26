@@ -1,16 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
+const ensureSupabaseAdmin = () => {
+  if (!supabaseAdmin) {
+    throw new Error('Supabase admin client is not configured')
+  }
+  return supabaseAdmin
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await context.params
 
-    const { data, error } = await supabaseAdmin
+    const admin = ensureSupabaseAdmin()
+    const { data, error } = await admin
       .from('products')
-      .select('*')
+      .select('*, product_variants(*)')
       .eq('id', id)
       .single()
 
@@ -21,9 +29,14 @@ export async function GET(
       )
     }
 
+    const product = {
+      ...data,
+      variants: data?.product_variants || [],
+    }
+
     return NextResponse.json({
       success: true,
-      data,
+      data: product,
     })
   } catch (error: any) {
     console.error('[API] Error fetching product:', error)
@@ -36,14 +49,15 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await context.params
     const body = await request.json()
-    const { name, category, price, description, ingredients, benefits, usage_instructions, image_url } = body
+    const { name, category, price, description, ingredients, benefits, usage_instructions, image_url, variants } = body
 
-    const { data, error } = await supabaseAdmin
+    const admin = ensureSupabaseAdmin()
+    const { data: updatedProducts, error: productError } = await admin
       .from('products')
       .update({
         name,
@@ -59,17 +73,72 @@ export async function PUT(
       .eq('id', id)
       .select()
 
-    if (error) {
-      console.error('[API] Supabase error:', error)
+    if (productError) {
+      console.error('[API] Supabase error:', productError)
       return NextResponse.json(
-        { error: error.message },
+        { error: productError.message },
         { status: 500 }
       )
     }
 
+    if (Array.isArray(variants)) {
+      const { error: deleteError } = await admin
+        .from('product_variants')
+        .delete()
+        .eq('product_id', id)
+
+      if (deleteError) {
+        console.error('[API] Supabase delete variants error:', deleteError)
+        return NextResponse.json(
+          { error: deleteError.message },
+          { status: 500 }
+        )
+      }
+
+      if (variants.length > 0) {
+const variantsToInsert = variants.map((variant: any) => {
+        const row: any = {
+          product_id: id,
+          size_label: variant.size_label,
+          price: variant.price,
+        }
+
+        if (variant.image_url) {
+          row.image_url = variant.image_url
+        }
+
+        return row
+      })
+
+        const { data: variantData, error: variantError } = await admin
+          .from('product_variants')
+          .insert(variantsToInsert)
+          .select()
+
+        if (variantError) {
+          console.error('[API] Supabase variants error:', variantError)
+          return NextResponse.json(
+            { error: variantError.message },
+            { status: 500 }
+          )
+        }
+
+        return NextResponse.json({
+          success: true,
+          data: {
+            ...updatedProducts[0],
+            variants: variantData,
+          },
+        })
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      data: data[0],
+      data: {
+        ...updatedProducts[0],
+        variants: [],
+      },
     })
   } catch (error: any) {
     console.error('[API] Error updating product:', error)
@@ -82,12 +151,13 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await context.params
 
-    const { error } = await supabaseAdmin
+    const admin = ensureSupabaseAdmin()
+    const { error } = await admin
       .from('products')
       .delete()
       .eq('id', id)

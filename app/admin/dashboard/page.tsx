@@ -9,7 +9,7 @@ import RecentOrders from '@/components/admin/RecentOrders'
 import AnalyticsCharts from '@/components/admin/AnalyticsCharts'
 import AdminHeader from '@/components/admin/AdminHeader'
 import { LogOut } from 'lucide-react'
-import type { Order } from '@/lib/types'
+import type { Order } from '@/lib/supabase'
 
 export default function AdminDashboard() {
   const router = useRouter()

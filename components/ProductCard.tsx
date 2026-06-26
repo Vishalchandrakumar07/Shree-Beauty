@@ -12,9 +12,20 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
-  const variants = product.variants || [{ id: '1', size_label: 'Standard', price: product.price }]
-  const [selectedVariant, setSelectedVariant] = useState(variants[0])
+  const allVariants = (product.variants && product.variants.length > 0
+    ? product.variants
+    : product.product_variants && product.product_variants.length > 0
+      ? product.product_variants
+      : [{ id: '1', size_label: 'Standard', price: product.price, image_url: product.image_url }])
+  const [selectedVariant, setSelectedVariant] = useState(() => allVariants[0] || {
+    id: '1',
+    size_label: 'Standard',
+    price: product.price,
+    image_url: product.image_url,
+  })
   const { addItem } = useCart()
+
+  const selectedImage = selectedVariant?.image_url || product.image_url || ''
 
   const handleAddToCart = () => {
     const cartItem: CartItem = {
@@ -24,7 +35,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       sizeLabel: selectedVariant.size_label,
       price: selectedVariant.price,
       quantity: 1,
-      imageUrl: product.image_url,
+      imageUrl: selectedImage,
     }
     addItem(cartItem)
   }
@@ -39,9 +50,17 @@ export default function ProductCard({ product }: ProductCardProps) {
     >
       {/* Product Image */}
       <div className="relative h-48 bg-muted/30 flex items-center justify-center overflow-hidden">
-        <div className="w-full h-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
-          <div className="text-6xl font-bold text-primary/20">📦</div>
-        </div>
+        {selectedVariant.image_url || product.image_url ? (
+          <img
+            src={selectedVariant.image_url || product.image_url}
+            alt={product.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
+            <div className="text-6xl font-bold text-primary/20">📦</div>
+          </div>
+        )}
         <span className="absolute top-3 right-3 bg-secondary text-white px-3 py-1 rounded-full text-xs font-semibold">
           {product.category}
         </span>
@@ -60,7 +79,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Variant Selector */}
-        {variants.length > 1 && (
+        {allVariants.length > 1 && (
           <div className="mb-4">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
@@ -79,7 +98,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                {variants.map((variant) => (
+                {allVariants.map((variant) => (
                   <button
                     key={variant.id}
                     onClick={() => {

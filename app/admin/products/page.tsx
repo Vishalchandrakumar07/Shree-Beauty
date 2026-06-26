@@ -10,7 +10,7 @@ import { Product } from '@/lib/types'
 
 export default function ProductsPage() {
   const router = useRouter()
-  const { isLoggedIn } = useAdmin()
+  const { isLoggedIn, logout } = useAdmin()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -57,9 +57,14 @@ export default function ProductsPage() {
     return null
   }
 
+  const handleLogout = () => {
+    logout()
+    router.push('/admin/login')
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <AdminHeader />
+      <AdminHeader onLogout={handleLogout} />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">

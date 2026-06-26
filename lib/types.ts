@@ -8,6 +8,13 @@ export interface CartItem {
   imageUrl: string
 }
 
+export interface ProductVariant {
+  id: string
+  size_label: string
+  price: number
+  image_url?: string
+}
+
 export interface Product {
   id: string
   name: string
@@ -18,11 +25,8 @@ export interface Product {
   benefits: string
   usage_instructions: string
   image_url: string
-  variants: {
-    id: string
-    size_label: string
-    price: number
-  }[]
+  variants?: ProductVariant[]
+  product_variants?: ProductVariant[]
 }
 
 export interface CheckoutFormData {

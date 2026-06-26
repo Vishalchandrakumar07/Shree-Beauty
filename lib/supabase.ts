@@ -1,18 +1,26 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
+const createClientOrThrow = (url: string | undefined, key: string | undefined): SupabaseClient => {
+  if (!url || !key) {
+    throw new Error(
+      'Missing Supabase environment variables. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE_KEY for server operations.'
+    )
+  }
+
+  try {
+    return createClient(url, key)
+  } catch (error) {
+    console.error('Supabase client initialization failed:', error)
+    throw error
+  }
 }
 
-// Client for browser use
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-// Server-side client with service role (for admin operations)
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey || supabaseAnonKey)
+export const supabase = createClientOrThrow(supabaseUrl, supabaseAnonKey)
+export const supabaseAdmin = createClientOrThrow(supabaseUrl, supabaseServiceKey || supabaseAnonKey)
 
 // Type definitions
 export interface Product {
@@ -25,6 +33,7 @@ export interface Product {
   benefits: string
   usage_instructions: string
   image_url: string
+  variants?: ProductVariant[]
   created_at: string
   updated_at: string
 }
@@ -34,6 +43,7 @@ export interface ProductVariant {
   product_id: string
   size_label: string
   price: number
+  image_url?: string
   created_at: string
 }
 
