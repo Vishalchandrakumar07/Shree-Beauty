@@ -21,11 +21,6 @@ const faqs = [
       'Currently, we ship within India only. We are working on expanding our international reach soon.',
   },
   {
-    question: 'Can I return products if unsatisfied?',
-    answer:
-      'We offer a 100% satisfaction guarantee. If you are not happy with your purchase, contact us within 7 days for a full refund or replacement.',
-  },
-  {
     question: 'Are products suitable for all skin types?',
     answer:
       'Most of our products are formulated for all skin types. However, we recommend reviewing ingredient lists and patch testing before full use, especially for sensitive skin.',

@@ -61,7 +61,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <div className="text-6xl font-bold text-primary/20">📦</div>
           </div>
         )}
-        <span className="absolute top-3 right-3 bg-secondary text-white px-3 py-1 rounded-full text-xs font-semibold">
+        <span className="absolute top-3 right-3 bg-green-500 text-white px-2.5 py-1 rounded-full text-xs font-medium shadow-none">
           {product.category}
         </span>
       </div>

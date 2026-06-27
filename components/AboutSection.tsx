@@ -2,6 +2,8 @@
 
 import { motion } from 'framer-motion'
 import { BUSINESS_INFO } from '@/lib/constants'
+import Image from 'next/image'
+
 
 export default function AboutSection() {
   return (
@@ -23,23 +25,25 @@ export default function AboutSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          {/* Image Placeholder */}
-          <div className="h-96 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl flex items-center justify-center">
-            <div className="text-6xl">🌿</div>
-          </div>
+          {/* Product Image */}
+            <div className="relative h-96 rounded-xl overflow-hidden">
+              <Image
+                src="/logo.jpeg"
+                alt="Shree Beauty"
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
 
           {/* Content */}
           <div className="space-y-6">
             <p className="text-lg text-foreground/70 leading-relaxed">
-              At {BUSINESS_INFO.name}, we believe that true beauty comes from nature. Our journey began with
-              a simple mission: to create premium, natural beauty products that nourish your skin and spirit
-              without harmful chemicals.
+             Shree Organic Cosmetics offers a premium range of organic soaps, herbal shampoos, natural oils, and personal care products crafted from carefully selected natural ingredients.        
             </p>
 
             <p className="text-lg text-foreground/70 leading-relaxed">
-              Every product is handmade with love, using only the finest organic ingredients sourced
-              responsibly. We don&apos;t believe in shortcuts or compromises. Your beauty matters, and so does
-              your health.
+               Our goal is to provide safe, effective, and eco-friendly beauty solutions that promote healthy skin and hair while embracing the goodness of nature. We are committed to quality, purity, and customer satisfaction in every product we create.
             </p>
 
             <div className="space-y-3 pt-4">

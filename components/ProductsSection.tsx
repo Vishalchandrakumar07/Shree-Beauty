@@ -73,16 +73,7 @@ export default function ProductsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-4 top-3 text-foreground/40" size={20} />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
+         
         </motion.div>
 
         {/* Category Filter */}
