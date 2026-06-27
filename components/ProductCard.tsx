@@ -94,8 +94,8 @@ export default function ProductCard({ product }: ProductCardProps) {
 
             {isExpanded && (
               <motion.div
-                className="absolute mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-10"
-                initial={{ opacity: 0, y: -10 }}
+                className="mt-1 border border-border rounded-lg overflow-hidden"
+                initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
               >
                 {allVariants.map((variant) => (
@@ -141,7 +141,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </button>
 
         {/* Expandable Details */}
-        {isExpanded === false && (
+        {allVariants.length > 1 && !isExpanded && (
           <button
             onClick={() => setIsExpanded(true)}
             className="w-full mt-2 text-xs text-primary/70 hover:text-primary transition-colors"
