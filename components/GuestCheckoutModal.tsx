@@ -134,14 +134,28 @@ export default function GuestCheckoutModal({ isOpen, onClose }: GuestCheckoutMod
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-2">Full Name *</label>
                   <input
-                    {...register('customerName')}
-                    className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
-                    placeholder="John Doe"
-                    disabled={isSubmitting}
-                  />
-                  {errors.customerName && (
-                    <p className="text-xs text-red-500 mt-1">{errors.customerName.message}</p>
-                  )}
+                      {...register('customerName', {
+                        required: 'Full Name is required',
+                        pattern: {
+                          value: /^[A-Za-z\s]+$/,
+                          message: 'Name can only contain letters and spaces',
+                        },
+                      })}
+                      type="text"
+                      inputMode="text"
+                      onInput={(e) => {
+                        e.currentTarget.value = e.currentTarget.value.replace(/[^A-Za-z\s]/g, '')
+                      }}
+                      className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
+                      placeholder="John Doe"
+                      disabled={isSubmitting}
+                    />
+
+                    {errors.customerName && (
+                      <p className="text-xs text-red-500 mt-1">
+                        {errors.customerName.message}
+                      </p>
+                    )}
                 </div>
 
                 {/* Mobile */}
