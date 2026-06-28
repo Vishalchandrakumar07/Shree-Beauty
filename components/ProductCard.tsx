@@ -141,7 +141,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </button>
 
         {/* Expandable Details */}
-        {allVariants.length > 1 && !isExpanded && (
+        {allVariants.length > 0 && !isExpanded && (
           <button
             onClick={() => setIsExpanded(true)}
             className="w-full mt-2 text-xs text-primary/70 hover:text-primary transition-colors"
