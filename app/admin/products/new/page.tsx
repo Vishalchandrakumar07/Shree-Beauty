@@ -8,7 +8,7 @@ import ImageUpload from '@/components/admin/ImageUpload'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
-const CATEGORIES = [ 'Shampoos', 'Hair Oils' ]
+const CATEGORIES = [ 'Shampoos', 'Hair Oils', 'Soaps', 'Face Washe' ]
 
 export default function NewProductPage() {
   const router = useRouter()

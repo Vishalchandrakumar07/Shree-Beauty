@@ -24,10 +24,10 @@ export const BUSINESS_INFO = {
 
 // Product Categories
 export const CATEGORIES = {
-  // SOAP: 'Soap',
+  SOAP: 'Soap',
   SHAMPOO: 'Shampoo',
   HAIR_OIL: 'Hair Oil',
-  // FACE_WASH: 'Face Wash',
+  FACE_WASH: 'Face Wash',
 }
 
 // API Routes

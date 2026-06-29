@@ -59,7 +59,7 @@ export default function Header({ onCartClick }: HeaderProps) {
             >
               <ShoppingCart size={24} />
               {cartCount > 0 && (
-                <span className="absolute top-0 right-0 bg-secondary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute top-0 right-0 bg-secondary text-green text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
@@ -169,3 +169,6 @@ export default function Header({ onCartClick }: HeaderProps) {
     </header>
   )
 }
+
+
+//cart

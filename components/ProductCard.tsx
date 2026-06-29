@@ -27,18 +27,22 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const selectedImage = selectedVariant?.image_url || product.image_url || ''
 
-  const handleAddToCart = () => {
-    const cartItem: CartItem = {
-      productId: product.id,
-      productName: product.name,
-      variantId: selectedVariant.id,
-      sizeLabel: selectedVariant.size_label,
-      price: selectedVariant.price,
-      quantity: 1,
-      imageUrl: selectedImage,
+    const handleAddToCart = () => {
+      const cartItem: CartItem = {
+        productId: product.id,
+        productName: product.name,
+        variantId: selectedVariant.id,
+        sizeLabel: selectedVariant.size_label,
+        price: selectedVariant.price,
+        quantity: 1,
+        imageUrl: selectedImage,
+      }
+
+      addItem(cartItem)
+
+      alert("✅ Product added to cart successfully!")
     }
-    addItem(cartItem)
-  }
+  
 
   return (
     <motion.div
